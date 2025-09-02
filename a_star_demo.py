@@ -1,6 +1,9 @@
 from collections import defaultdict
+from datetime import datetime
 import heapq
 import math
+from pathlib import Path
+import png
 import random
 
 lower, upper = 5, 10
@@ -21,7 +24,7 @@ def reconstruct_path(back_pointers, current):
         total_path.append(current)
     return total_path[::-1]
 
-def search(start, goal):
+def search(start, goal, grid, m, n):
     start_y, start_x = start
 
     open_set = [(0, start_y, start_x)]
@@ -48,14 +51,38 @@ def search(start, goal):
 
     return []
 
-path = search(start, dest)
-for row in grid:
-    print(row)
-print('------------------------------------')
+def create_image(grid):
+    image = []
+    for row in grid:
+        image_row = []
+        for v in row:
+            image_row.extend(v)
+        image.append(image_row)
+    return image
 
-if not path: print("Did not find path")
-else:
-    for loc in path:
-        print(loc)
+def visualise(grid, path):
+    min_val = min(map(min, grid))
+    max_val = max(map(max, grid))
+    normalise = 255 / max_val - min_val
 
+    grid = [[[int((v - min_val) * normalise), int((v - min_val) * normalise), int((v - min_val) * normalise)] for v in row] for row in grid]
+    timestamp = datetime.now().strftime('%y%m%d_%H%M%S')
+    image = create_image(grid)
+    Path(timestamp).mkdir()
+    frame_len = math.ceil(math.log(len(path)+1,10))
 
+    w = png.Writer(width=n, height=m, bitdepth=8, greyscale=False)
+
+    with open(f'{timestamp}/frame_{0:0>{frame_len}}.png', "wb") as f:
+        w.write(f, image)
+
+    for i in range(len(path)):
+        y, x = path[i]
+        grid[y][x] = [255, 0, 0]
+        image = create_image(grid)
+
+        with open(f'{timestamp}/frame_{(i+1):0>{frame_len}}.png', "wb") as f:
+            w.write(f, image)
+
+path = search(start, dest, grid, m, n)
+visualise(grid, path)
