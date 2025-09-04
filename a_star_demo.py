@@ -14,12 +14,12 @@ GREEN  = [  0, 255,   0]
 BLUE   = [  0,  0,  255]
 YELLOW = [255, 255,   0]
 
-lower, upper = 30, 100
+lower, upper = 30, 100 
 m, n = random.randint(lower,upper), random.randint(lower,upper)
 density = random.randint(5,20)
 directions = [(-1,0),(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1)]
 
-grid = [[0 if random.randint(0, 100) > density else 1 for _ in range(n)] for _ in range(m)]
+grid = [[random.randint(0, 100) for _ in range(n)] for _ in range(m)]
 grid[0][0] = 0
 grid[m-1][n-1] = 0
 start = (0, 0)
@@ -45,7 +45,9 @@ def search(start, goal, grid, m, n):
     scale = min(IMG_HEIGHT // m, IMG_WIDTH // n)
     timestamp = datetime.now().strftime('%y%m%d_%H%M%S')
     Path(timestamp).mkdir()
-    image = create_base_image(grid, scale)
+    
+    base_image = create_base_image(grid, scale)
+    image = [row.copy() for row in base_image]
     image_count = 0
 
     w = png.Writer(width=n*scale, height=m*scale, bitdepth=8, greyscale=False)
@@ -85,13 +87,13 @@ def search(start, goal, grid, m, n):
     
     for y, x in path[:-1]:
         image_count += 1
-        update_image(image, y, x, scale, GREEN)
+        update_image(base_image, y, x, scale, GREEN)
 
         with open(f'{timestamp}/frame_{image_count:05}.png', "wb") as f:
-            w.write(f, image)
-    update_image(image, path[-1][0], path[-1][1], scale, YELLOW)
+            w.write(f, base_image)
+    update_image(base_image, path[-1][0], path[-1][1], scale, YELLOW)
     with open(f'{timestamp}/frame_{image_count+1:05}.png', "wb") as f:
-        w.write(f, image)
+        w.write(f, base_image)
 
 def create_base_image(grid, scale):
     min_val = min(map(min, grid))
