@@ -31,7 +31,7 @@ lower, upper = int(args.lower), int(args.upper)
 m, n = random.randint(lower,upper), random.randint(lower,upper)
 directions = [(-1,0),(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1)]
 
-grid = [[random.randint(0, 100) for _ in range(n)] for _ in range(m)]
+grid = [[random.randint(1, 100) for _ in range(n)] for _ in range(m)]
 grid[0][0] = 0
 grid[m-1][n-1] = 0
 start = (0, 0)
@@ -50,7 +50,7 @@ def search(start, goal, grid, m, n):
     open_set = [(0, start_y, start_x)]
     back_pointers = {}
 
-    g_score = defaultdict(lambda: math.inf)
+    g_score = {}
     g_score[(start_y, start_x)] = 0
 
     if args.visualise:
@@ -80,15 +80,13 @@ def search(start, goal, grid, m, n):
             break
         for dy, dx in directions:
             y, x = current_y + dy, current_x + dx
-            if y < 0 or y >= m or x < 0 or x >= n or grid[y][x] == 1: continue
             neighbour = (y, x)
-            tentative_g_score = g_score[current] + grid[y][x]
-            
-            if tentative_g_score < g_score[neighbour]:
-                back_pointers[neighbour] = current
-                g_score[neighbour] = tentative_g_score
-                f_score = tentative_g_score + abs(goal[0] - y) + abs(goal[1] - x)
-                heapq.heappush(open_set, (f_score, y, x))
+            if neighbour in g_score or y < 0 or y >= m or x < 0 or x >= n or grid[y][x] == 1: continue
+            _g_score = g_score[current] + grid[y][x]
+            back_pointers[neighbour] = current
+            g_score[neighbour] = _g_score
+            f_score = _g_score + abs(goal[0]-y) + abs(goal[1] - x)
+            heapq.heappush(open_set, (f_score, y, x))
         if args.visualise:
             prev = current
             image_count += 1
