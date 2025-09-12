@@ -4,9 +4,6 @@ from datetime import datetime
 import heapq
 import glob
 import math
-from pathlib import Path
-from PIL import Image
-import png
 import random
 import subprocess
 
@@ -18,6 +15,11 @@ parser.add_argument('-u', '--upper', default="50")
 parser.add_argument('-v', '--visualise', action='store_true')
 
 args = parser.parse_args()
+
+if args.visualise:
+    from pathlib import Path
+    from PIL import Image
+    import png
 
 IMG_WIDTH, IMG_HEIGHT = int(args.width), int(args.height)
 
@@ -31,9 +33,11 @@ lower, upper = int(args.lower), int(args.upper)
 m, n = random.randint(lower,upper), random.randint(lower,upper)
 directions = [(-1,0),(-1,1),(0,1),(1,1),(1,0),(1,-1),(0,-1),(-1,-1)]
 
-grid = [[random.randint(1, 100) for _ in range(n)] for _ in range(m)]
+grid = [[random.randint(1, 10) for _ in range(n)] for _ in range(m)]
 grid[0][0] = 0
 grid[m-1][n-1] = 0
+#start = (random.randint(0, m-1), random.randint(0, n-1))
+#dest = (random.randint(0, m-1), random.randint(0, n-1))
 start = (0, 0)
 dest = (m-1, n-1)
 
@@ -81,7 +85,7 @@ def search(start, goal, grid, m, n):
         for dy, dx in directions:
             y, x = current_y + dy, current_x + dx
             neighbour = (y, x)
-            if neighbour in g_score or y < 0 or y >= m or x < 0 or x >= n or grid[y][x] == 1: continue
+            if neighbour in g_score or y < 0 or y >= m or x < 0 or x >= n: continue
             _g_score = g_score[current] + grid[y][x]
             back_pointers[neighbour] = current
             g_score[neighbour] = _g_score
