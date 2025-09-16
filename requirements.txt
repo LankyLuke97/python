@@ -1,2 +1,4 @@
-pypng
 Pillow
+pypng
+pytest
+snakeviz
