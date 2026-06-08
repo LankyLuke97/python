@@ -1,0 +1,5 @@
+line_profiler
+Pillow
+pypng
+pytest
+snakeviz
